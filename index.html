@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Greek number test</title>
+</head>
+<body>
+<div id="alert-wrapper">
+    <button id="sound-button" onclick="playSound()">&#9658;</button>
+    <span id="alert">Click "check" to check your answer.</span>
+    <span id="dark-mode-switch-wrapper">
+        <input onchange="toggleDarkMode()" id="dark-mode" name="dark-mode" type="checkbox">
+        <label for="dark-mode"></label>
+    </span>
+</div>
+<form id="answer-form">
+    <div id="fieldset">
+        <div>
+            <input required="required" id="number" placeholder="Answer (e.g 12)" type="number">
+        </div>
+        <div>
+            <button id="button" type="submit">Check</button>
+        </div>
+    </div>
+</form>
+</body>
+<style>
+    @import url('https://fonts.googleapis.com/css?family=Roboto+Condensed:400,700&subset=greek');
+
+    input#dark-mode {
+        display: none;
+    }
+
+    * {
+        transition: 200ms background-color;
+    }
+
+    .dark input#dark-mode + label {
+        background-color: #202020;
+    }
+
+    input#dark-mode + label {
+        background-color: white;
+        cursor: pointer;
+        box-shadow: 2px 2px 6px 3px #a2a2a240;
+        height: 20px;
+        width: 40px;
+        display: block;
+        position: relative;
+        border-radius: 50px;
+    }
+
+    input[name=dark-mode] + label::before {
+        border-radius: 50px;
+        background-color: #343434;
+        content: "_";
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        font-size: 0;
+        transform: translate3d(0, 0, 0);
+        transition: transform .2s ease-in-out;
+    }
+
+    .dark input[name=dark-mode] + label::before {
+        background-color: white;
+    }
+
+    input[name=dark-mode]:checked + label::before {
+        transform: translate3d(20px, 0, 0);
+        transition: transform .2s ease-in-out;
+    }
+
+    #dark-mode-switch-wrapper {
+        float: right
+    }
+
+    #sound-button {
+        border: none;
+        border-radius: 500px;
+        background-color: #3CAEA3;
+        margin-right: 15px;
+        cursor: pointer;
+        font-size: 15px;
+        padding: 10px;
+        color: white;
+    }
+
+    #alert-wrapper {
+        margin: 20px;
+        padding: 20px;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 2px 2px 7px 5px #a2a2a240;
+        font-weight: 700;
+        font-size: 1.5em;
+    }
+
+    .dark #alert-wrapper {
+        background-color: #202020;
+        color: white
+    }
+
+    div#fieldset {
+        border: none;
+        padding: 0;
+        display: grid;
+        grid-template-columns: 3fr 1fr;
+        grid-gap: 20px;
+        background-color: transparent;
+        border-radius: 10px;
+        box-shadow: 2px 2px 7px 5px #a2a2a240;
+    }
+
+    input[type=number] {
+        width: 100%;
+        font-size: 1.2em;
+        padding: 10px;
+        border-radius: 10px 0 0 10px;
+        border: none;
+    }
+
+    .dark input[type=number] {
+        background-color: #202020;
+        color: white;
+    }
+
+    button[type=submit] {
+        width: 100%;
+        font-size: 1.2em;
+        padding: 10px;
+        cursor: pointer;
+        border: none;
+        border-radius: 0 10px 10px 0;
+        background-color: #3CAEA3;
+        color: white;
+        font-weight: 700;
+    }
+
+    body {
+        background-color: #F5F5F5;
+        font-family: 'Roboto Condensed', sans-serif;
+    }
+
+    body.dark {
+        background-color: #202020;
+    }
+
+
+    #answer-form {
+        margin: 20px
+    }
+</style>
+<script>
+    const text = [
+        'μηδέν',
+        'ένα',
+        'δύο',
+        'τρία',
+        'τέσσερα',
+        'πέντε',
+        'έξι',
+        'επτά',
+        'οκτώ',
+        'εννέα',
+        'δέκα',
+        'έντεκα',
+        'δώδεκα',
+        'δεκατρείς',
+        'δεκατέσσερα',
+        'δεκαπέντε',
+        'δεκαέξι',
+        'δεκαεπτά',
+        'δεκαοχτώ',
+        'δεκαεννέα',
+        'είκοσι'
+    ];
+
+    function newNumber() {
+        getNumberElement().value = null;
+        getButton().innerText = 'Check';
+
+        getAlert().innerText = 'Click "check" to check your answer.';
+
+        const min = 0;
+        const max = text.length;
+
+        window.currentNumber = Math.floor(Math.random() * (+max - +min)) + +min;
+
+        playSound()
+    }
+
+    function playSound() {
+        const msg = new SpeechSynthesisUtterance(text[window.currentNumber]);
+        const GREEK_LADY = 26;
+        msg.voice = window.speechSynthesis.getVoices()[GREEK_LADY];
+        msg.lang = 'el-GR';
+
+        window.speechSynthesis.speak(msg);
+    }
+
+    function getAlert() {
+        return document.getElementById('alert');
+    }
+
+    function getButton() {
+        return document.getElementById('button');
+    }
+
+    function validateAnswer(value) {
+        const isCorrect = parseInt(value) === parseInt(window.currentNumber);
+
+        getAlert().innerText = isCorrect ? 'Correct' : `Wrong (correct: ${window.currentNumber})`
+        getButton().innerText = 'Next'
+    }
+
+    document.getElementById('answer-form').addEventListener('submit', (event) => {
+        const value = getNumberElement().value;
+
+        if (value.trim() !== '') {
+            event.preventDefault()
+        }
+
+        if (getButton().innerText === 'Next') {
+            newNumber();
+
+            return;
+        }
+
+
+        validateAnswer(value)
+    });
+
+    document.addEventListener('keypress', event => {
+        const isNumber = event.code.startsWith('Digit');
+
+        if (isNumber) {
+            focusNumber();
+        }
+    });
+
+    function getNumberElement() {
+        return document.getElementById('number');
+    }
+
+    function focusNumber() {
+        getNumberElement().focus()
+    }
+
+    function toggleDarkMode() {
+        if (window.isDarkMode === undefined) {
+            window.isDarkMode = false
+        }
+
+        window.isDarkMode = !window.isDarkMode;
+
+        document.body.className = window.isDarkMode ? 'dark' : '';
+    }
+
+    newNumber();
+    focusNumber();
+    getAlert().style.height = getAlert().clientHeight.toString()
+</script>
+
+<script>
+    class Cookies {
+        add(name, value) {
+            document.cookie = `${document.cookie}${name}=${value}`
+        }
+
+        get(name) {
+            document.cookie.split(';').some((value) => {
+                name === value.split('=')[0].trim()
+            })
+        }
+    }
+</script>
+</html>
